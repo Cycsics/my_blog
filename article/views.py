@@ -12,7 +12,10 @@ from django.http import HttpResponse
 from django.shortcuts import render
 # 引入User模型
 from django.contrib.auth.models import User
+# 引入登录确认模型
 from django.contrib.auth.decorators import login_required
+# 引入分页模块
+from django.core.paginator import Paginator
 
 
 
@@ -63,9 +66,7 @@ def article_create(request):
         if article_post_form.is_valid():
             # 保存数据，但暂时不提交到数据库中
             new_article = article_post_form.save(commit=False)
-            # 指定数据库中 id=1 的用户为作者
-            # 如果你进行过删除数据表的操作，可能会找不到id=1的用户
-            # 此时请重新创建用户，并传入此用户的id
+            # 指定目前登录的用户为作者
             new_article.author = User.objects.get(id=request.user.id)
             # 将新文章保存到数据库中
             new_article.save()
@@ -83,9 +84,10 @@ def article_create(request):
         # 返回模板
         return render(request, 'article/create.html', context)
 
-
+@login_required(login_url='/userprofile/login/')
 def article_safe_delete(request, id):
     if request.method == 'POST':
+        #if request.
         article = ArticlePost.objects.get(id=id)
         article.delete()
         return redirect("article:article_list")
@@ -93,6 +95,7 @@ def article_safe_delete(request, id):
         return HttpResponse("仅允许post请求")
 
 # 更新文章
+@login_required(login_url='/userprofile/login/')
 def article_update(request, id):
     """
     更新文章的视图函数
@@ -127,3 +130,20 @@ def article_update(request, id):
         context = { 'article': article, 'article_post_form': article_post_form }
         # 将响应返回到模板中
         return render(request, 'article/update.html', context)
+
+
+
+# 文章列表分页
+def article_list(request):
+    # 修改变量名称（articles -> article_list）
+    article_list = ArticlePost.objects.all()
+
+    # 每页显示 1 篇文章
+    paginator = Paginator(article_list, 1)
+    # 获取 url 中的页码
+    page = request.GET.get('page')
+    # 将导航对象相应的页码内容返回给 articles
+    articles = paginator.get_page(page)
+
+    context = { 'articles': articles }
+    return render(request, 'article/list.html', context)
