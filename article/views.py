@@ -1,4 +1,5 @@
 #Author : CYCSICS
+from comment.models import Comment
 # 导入数据模型ArticlePost
 from .models import ArticlePost
 # 引入markdown
@@ -21,33 +22,29 @@ from django.db.models import Q
 
 
 
-
-def article_list(request):
-    # 取出所有博客文章
-    articles = ArticlePost.objects.all()
-    # 需要传递给模板（templates）的对象
-    context = { 'articles': articles }
-    # render函数：载入模板，并返回context对象
-    return render(request, 'article/list.html', context)
-
-
-
-
 def article_detail(request, id):
     article = ArticlePost.objects.get(id=id)
+    # 取出文章评论
+    comments = Comment.objects.filter(article=id)
     # 浏览量 +1
     article.total_views += 1
     article.save(update_fields=['total_views'])
     # 将markdown语法渲染成html样式
-    article.body = markdown.markdown(article.body,
+    md = markdown.Markdown(
         extensions=[
         # 包含 缩写、表格等常用扩展
         'markdown.extensions.extra',
         # 语法高亮扩展
         'markdown.extensions.codehilite',
+        # 目录扩展
+        'markdown.extensions.toc',
         ])
+    
+    article.body = md.convert(article.body)
 
-    context = { 'article': article }
+    # 添加comments上下文
+    context = { 'article': article, 'toc': md.toc, 'comments': comments }
+
     return render(request, 'article/detail.html', context)
 
 # 写文章的视图

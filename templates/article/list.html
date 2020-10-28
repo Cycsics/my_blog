@@ -15,14 +15,18 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="{% url 'article:article_list' %}?search={{ search }}">
-                    最新
-                </a>
+                {% if order == 'total_views' %}
+                    <a  href="{% url 'article:article_list' %}?search={{ search }}">最新</a>
+                {% else %}
+                    <span>最新</span>
+                {% endif %}
             </li>
             <li class="breadcrumb-item">
-                <a href="{% url 'article:article_list' %}?order=total_views&search={{ search }}">
-                    最热
-                </a>
+                {% if order != 'total_views' %}
+                    <a class="order_list " href="{% url 'article:article_list' %}?order=total_views&search={{ search }}">最热</a>
+                {% else %}
+                    <span>最热</span>
+                {% endif %}
             </li>
         </ol>
     </nav>

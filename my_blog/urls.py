@@ -27,6 +27,9 @@ urlpatterns = [
 
     # 用户管理
     path('userprofile/', include('userprofile.urls', namespace='userprofile')),
+
+    # 评论
+    path('comment/', include('comment.urls', namespace='comment')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
