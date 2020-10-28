@@ -16,6 +16,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 # 引入分页模块
 from django.core.paginator import Paginator
+# 引入Q对象
+from django.db.models import Q
 
 
 
@@ -28,26 +30,14 @@ def article_list(request):
     # render函数：载入模板，并返回context对象
     return render(request, 'article/list.html', context)
 
-# 文章详情
-def article_detail(request, id):
-    
-    article = ArticlePost.objects.get(id=id)
 
+
+
+def article_detail(request, id):
+    article = ArticlePost.objects.get(id=id)
     # 浏览量 +1
     article.total_views += 1
     article.save(update_fields=['total_views'])
-    # 取出相应的文章
-    article = ArticlePost.objects.get(id=id)
-    # 需要传递给模板的对象
-    context = { 'article': article }
-    # 载入模板，并返回context对象
-    return render(request, 'article/detail.html', context)
-
-
-
-def article_detail(request, id):
-    article = ArticlePost.objects.get(id=id)
-
     # 将markdown语法渲染成html样式
     article.body = markdown.markdown(article.body,
         extensions=[
@@ -145,15 +135,37 @@ def article_update(request, id):
 
 # 文章列表分页
 def article_list(request):
-    # 修改变量名称（articles -> article_list）
-    article_list = ArticlePost.objects.all()
+    search = request.GET.get('search')
+    order = request.GET.get('order')
+    # 用户搜索逻辑
+    if search:
+        if order == 'total_views':
+            # 用 Q对象 进行联合搜索
+            article_list = ArticlePost.objects.filter(
+                Q(title__icontains=search) |
+                Q(body__icontains=search)
+            ).order_by('-total_views')
+        else:
+            article_list = ArticlePost.objects.filter(
+                Q(title__icontains=search) |
+                Q(body__icontains=search)
+            )
+    else:
+        # 将 search 参数重置为空
+        search = ''
+        if order == 'total_views':
+            article_list = ArticlePost.objects.all().order_by('-total_views')
+        else:
+            article_list = ArticlePost.objects.all()
 
-    # 每页显示 1 篇文章
-    paginator = Paginator(article_list, 1)
-    # 获取 url 中的页码
+    paginator = Paginator(article_list, 3)
     page = request.GET.get('page')
-    # 将导航对象相应的页码内容返回给 articles
     articles = paginator.get_page(page)
 
-    context = { 'articles': articles }
+    # 增加 search 到 context
+    context = { 'articles': articles, 'order': order, 'search': search }
+
     return render(request, 'article/list.html', context)
+
+
+
