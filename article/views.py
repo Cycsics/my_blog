@@ -30,6 +30,12 @@ def article_list(request):
 
 # 文章详情
 def article_detail(request, id):
+    
+    article = ArticlePost.objects.get(id=id)
+
+    # 浏览量 +1
+    article.total_views += 1
+    article.save(update_fields=['total_views'])
     # 取出相应的文章
     article = ArticlePost.objects.get(id=id)
     # 需要传递给模板的对象
@@ -87,7 +93,8 @@ def article_create(request):
 @login_required(login_url='/userprofile/login/')
 def article_safe_delete(request, id):
     if request.method == 'POST':
-        #if request.
+        if request.user != article.author:
+            return HttpResponse("抱歉，你无权删除这篇文章。")
         article = ArticlePost.objects.get(id=id)
         article.delete()
         return redirect("article:article_list")
@@ -106,6 +113,9 @@ def article_update(request, id):
 
     # 获取需要修改的具体文章对象
     article = ArticlePost.objects.get(id=id)
+    # 过滤非作者的用户
+    if request.user != article.author:
+        return HttpResponse("抱歉，你无权修改这篇文章。")
     # 判断用户是否为 POST 提交表单数据
     if request.method == "POST":
         # 将提交的数据赋值到表单实例中
