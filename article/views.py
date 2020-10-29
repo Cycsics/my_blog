@@ -1,7 +1,7 @@
 #Author : CYCSICS
 from comment.models import Comment
 # 导入数据模型ArticlePost
-from .models import ArticlePost
+from .models import ArticlePost, ArticleColumn
 # 引入markdown
 import markdown
 # 引入刚才定义的ArticlePostForm表单类
@@ -61,6 +61,9 @@ def article_create(request):
             new_article = article_post_form.save(commit=False)
             # 指定目前登录的用户为作者
             new_article.author = User.objects.get(id=request.user.id)
+            # 增加文章栏目
+            if request.POST['column'] != 'none':
+                new_article.column = ArticleColumn.objects.get(id=request.POST['column'])
             # 将新文章保存到数据库中
             new_article.save()
             # 完成后返回到文章列表
@@ -72,11 +75,13 @@ def article_create(request):
     else:
         # 创建表单类实例
         article_post_form = ArticlePostForm()
-        # 赋值上下文
-        context = { 'article_post_form': article_post_form }
+        # 赋值上下文，返回文章栏目
+        columns = ArticleColumn.objects.all()
+        context = { 'article_post_form': article_post_form, 'columns': columns }
         # 返回模板
         return render(request, 'article/create.html', context)
 
+# 删除文章
 @login_required(login_url='/userprofile/login/')
 def article_safe_delete(request, id):
     if request.method == 'POST':
@@ -112,6 +117,11 @@ def article_update(request, id):
             # 保存新写入的 title、body 数据并保存
             article.title = request.POST['title']
             article.body = request.POST['body']
+            # 保存文章栏目
+            if request.POST['column'] != 'none':
+                article.column = ArticleColumn.objects.get(id=request.POST['column'])
+            else:
+                article.column = None
             article.save()
             # 完成后返回到修改后的文章中。需传入文章的 id 值
             return redirect("article:article_detail", id=id)
@@ -123,6 +133,13 @@ def article_update(request, id):
     else:
         # 创建表单类实例
         article_post_form = ArticlePostForm()
+        # 获取文章栏目
+        columns = ArticleColumn.objects.all()
+        context = { 
+            'article': article, 
+            'article_post_form': article_post_form,
+            'columns': columns,
+        }
         # 赋值上下文，将 article 文章对象也传递进去，以便提取旧的内容
         context = { 'article': article, 'article_post_form': article_post_form }
         # 将响应返回到模板中
