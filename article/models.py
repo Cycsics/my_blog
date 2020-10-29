@@ -6,6 +6,9 @@ from django.utils import timezone
 from django.urls import reverse
 # Django-taggit
 from taggit.managers import TaggableManager
+from PIL import Image
+from imagekit.models import ProcessedImageField
+from imagekit.processors import ResizeToFit
 
 # 文章栏目，用外键和文章的Model关联
 class ArticleColumn(models.Model):
@@ -25,6 +28,14 @@ class ArticlePost(models.Model):
 
     # 文章标题。models.CharField 为字符串字段，用于保存较短的字符串，比如标题
     title = models.CharField(max_length=100)
+
+    # 文章标题图
+    avatar = ProcessedImageField(
+        upload_to='article/%Y%m%d',
+        processors=[ResizeToFit(width=400)],
+        format='JPEG',
+        options={'quality': 100},
+    )
 
     # 文章栏目的 “一对多” 外键
     column = models.ForeignKey(
@@ -53,7 +64,21 @@ class ArticlePost(models.Model):
     # 文章阅读数
     total_views = models.PositiveIntegerField(default=0)
     
+    # 保存时处理图片
+    def save(self, *args, **kwargs):
+        # 调用原有的 save() 的功能
+        article = super(ArticlePost, self).save(*args, **kwargs)
 
+        # 固定宽度缩放图片大小
+        if self.avatar and not kwargs.get('update_fields'):
+            image = Image.open(self.avatar)
+            (x, y) = image.size
+            new_x = 400
+            new_y = int(new_x * (y / x))
+            resized_image = image.resize((new_x, new_y), Image.ANTIALIAS)
+            resized_image.save(self.avatar.path)
+
+        return article
 
     # 内部类 class Meta 用于给 model 定义元数据
     class Meta:
