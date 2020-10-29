@@ -16,14 +16,14 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
                 {% if order == 'total_views' %}
-                    <a  href="{% url 'article:article_list' %}?search={{ search }}">最新</a>
+                    <a href="{% url 'article:article_list' %}?search={{ search }}&column={{ column }}&tag={{ tag }}">最新</a>
                 {% else %}
                     <span>最新</span>
                 {% endif %}
             </li>
             <li class="breadcrumb-item">
                 {% if order != 'total_views' %}
-                    <a class="order_list " href="{% url 'article:article_list' %}?order=total_views&search={{ search }}">最热</a>
+                    <a href="{% url 'article:article_list' %}?order=total_views&search={{ search }}&column={{ column }}&tag={{ tag }}">最热</a>
                 {% else %}
                     <span>最热</span>
                 {% endif %}
@@ -62,6 +62,16 @@
         {% for article in articles %}
             <!-- 文章内容 -->
             <div class="col-12">
+                <!-- 标题 -->
+                <h4>
+                    <b>
+                        <a href="{% url 'article:article_detail' article.id %}"
+                        style="color: black;" 
+                        >
+                            {{ article.title }}
+                        </a>
+                    </b>
+                </h4>
                 <!-- 栏目 -->
                 {% if article.column %}
                     <button type="button" 
@@ -78,16 +88,16 @@
                         {{ article.column }}
                     </button>
                 {% endif %}
-                <!-- 标题 -->
-                <h4>
-                    <b>
-                        <a href="{% url 'article:article_detail' article.id %}"
-                        style="color: black;" 
+                <!-- 标签 -->
+                <span>
+                    {% for tag in article.tags.all %}
+                        <a href="{% url 'article:article_list' %}?tag={{ tag }}"
+                        class="badge badge-secondary" 
                         >
-                            {{ article.title }}
+                            {{ tag }}
                         </a>
-                    </b>
-                </h4>
+                    {% endfor %}
+                </span>
                 <!-- 摘要 -->
                 <div>
                     <p style="color: gray;">

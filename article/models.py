@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 # timezone 用于处理时间相关事务。
 from django.utils import timezone
 from django.urls import reverse
+# Django-taggit
+from taggit.managers import TaggableManager
 
 # 文章栏目，用外键和文章的Model关联
 class ArticleColumn(models.Model):
@@ -32,6 +34,9 @@ class ArticlePost(models.Model):
         on_delete=models.CASCADE,
         related_name='article'
     )
+
+    # 文章标签
+    tags = TaggableManager(blank=True)
 
     # 文章作者。参数 on_delete 用于指定数据删除的方式
     author = models.ForeignKey(User, on_delete=models.CASCADE)
