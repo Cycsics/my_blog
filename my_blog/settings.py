@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'comment',
     'taggit',
     'ckeditor',
+    'mptt',
 ]
 
 MIDDLEWARE = [
@@ -165,3 +166,4 @@ CKEDITOR_CONFIGS = {
         
     }
 }
+X_FRAME_OPTIONS = 'SAMEORIGIN'
