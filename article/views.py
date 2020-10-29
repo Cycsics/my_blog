@@ -6,6 +6,8 @@ from .models import ArticlePost, ArticleColumn
 import markdown
 # 引入刚才定义的ArticlePostForm表单类
 from .forms import ArticlePostForm
+# 引入评论表单
+from comment.forms import CommentForm
 # 引入redirect重定向模块
 from django.shortcuts import render, redirect
 # 引入HttpResponse
@@ -41,9 +43,15 @@ def article_detail(request, id):
         ])
     
     article.body = md.convert(article.body)
-
+    # 引入评论表单
+    comment_form = CommentForm()
     # 添加comments上下文
-    context = { 'article': article, 'toc': md.toc, 'comments': comments }
+    context = { 
+        'article': article, 
+        'toc': md.toc, 
+        'comments': comments, 
+        'comment_form': comment_form,
+    }
 
     return render(request, 'article/detail.html', context)
 
