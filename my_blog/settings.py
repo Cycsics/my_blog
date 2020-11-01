@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '&*m0=x^gfhs)#%#^5_zv=1b!+yz@g-t0jza0b4#3&276jj!!+0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['cycsics.tech', '127.0.0.1', '193.112.141.179']
+ALLOWED_HOSTS = ['.cycsics.tech', '127.0.0.1', '193.112.141.179']
 
 
 
