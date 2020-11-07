@@ -61,14 +61,15 @@
     <div class="row mt-2">
         {% for article in articles %}
             <!-- 标题图 -->
-            {% if article.avatar %}
-                <div class="col-3">
+            <!-- {% if article.avatar %}
+                <a class="col-3" href="{% url 'article:article_detail' article.id %}">
                     <img src="{{ article.avatar.url }}" 
                         alt="avatar" 
                         style="max-width:100%; border-radius: 20px"
+                        
                     >
-                </div>
-            {% endif %}
+                </a>
+            {% endif %} -->
 
             <!-- 文章内容 -->
             <div class="col">

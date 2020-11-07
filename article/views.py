@@ -21,6 +21,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 # 引入Q对象
 from django.db.models import Q
+# 引入textrank-master
+from 
 
 
 
@@ -62,7 +64,7 @@ def article_create(request):
     # 判断用户是否提交数据
     if request.method == "POST":
         # 将提交的数据赋值到表单实例中
-        article_post_form = ArticlePostForm(request.POST, request.FILES)
+        article_post_form = ArticlePostForm(request.POST)
         # 判断提交的数据是否满足模型的要求
         if article_post_form.is_valid():
             # 保存数据，但暂时不提交到数据库中
@@ -214,3 +216,38 @@ def article_list(request):
 
 
 
+# 更新文章
+def article_summary(request):
+    """
+    提取文章摘要
+    """
+    # 判断用户是否为 POST 提交表单数据
+    if request.method == "POST":
+        # 获取返回的表单的Url
+        url = request.POST['url']
+        # 判断提交的数据是否满足模型的要求
+        if request.is_ajax():
+            # 保存新写入的 title、body 数据并保存
+            url = request.POST['url']
+            
+            # 完成后返回到修改后的文章中。需传入文章的 id 值
+            return redirect("article:article_detail", id=id)
+        # 如果数据不合法，返回错误信息
+        else:
+            return HttpResponse("表单内容有误，请重新填写。")
+
+    # 如果用户 GET 请求获取数据
+    else:
+        # 创建表单类实例
+        article_post_form = ArticlePostForm()
+        # 获取文章栏目
+        columns = ArticleColumn.objects.all()
+        # 赋值上下文，将 article 文章对象也传递进去，以便提取旧的内容
+        context = { 
+            'article': article, 
+            'article_post_form': article_post_form, 
+            'columns': columns,
+            'tags': ','.join([x for x in article.tags.names()]),
+        }
+        # 将响应返回到模板中
+        return render(request, 'article/update.html', context)
