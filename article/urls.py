@@ -11,8 +11,10 @@ urlpatterns = [
     path('article-detail/<int:id>/', views.article_detail, name='article_detail'),
     # 写文章
     path('article-create/', views.article_create, name='article_create'),
-    # 提取文章摘要
-    path('article-summary/', views.article_summary, name='article_create'),
+    # 提取文章摘要页面
+    path('article-summary/', views.article_summary, name='article_summary'),
+    # # 提取文章摘要功能
+    # path('article_result/', views.article_result, name='article_result'),
     # 安全删除文章
     path(
         'article-safe-delete/<int:id>/',
