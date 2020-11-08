@@ -1,3 +1,6 @@
 {
-    "python.pythonPath": "C:\\Users\\SZ597\\AppData\\Local\\Programs\\Python\\Python38-32\\python.exe"
+    "python.pythonPath": "C:\\Users\\SZ597\\AppData\\Local\\Programs\\Python\\Python38-32\\python.exe",
+    {
+        "cwd": "${fileDirname}",
+    }
 }

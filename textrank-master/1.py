@@ -21,7 +21,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.action_chains import ActionChains
 from webdriver_manager.chrome import ChromeDriverManager
-from summa.summarizer import summarize
+from ..textrank.summa.summarizer import summarize
+# from summa.summarizer import summarize
 from summa.keywords import keywords
 import requests
 # options = webdriver.ChromeOptions()
@@ -57,30 +58,30 @@ def url_data(web_url):
             article_body.append(i.text)
         else:
             print("Failed")
-    # print(article_body)
-    auto(str(article_body))
-
-
-
-def auto(article_data):
-    print("Open text file")
-    with open('text.txt', 'r', encoding='gbk', errors='ignore') as f:
-        if f:
-            print("Open Success")
-        else:
-            print("Open Failed")
-        text = f.read()
-        f.close()
-        # print(text)
-    summary = summarize(text, ratio=0.2, words=100)
+    summary = summarize(article_body, ratio=0.2, words=100)
     print(summary)
     words = summary.split()
     print("Summary's lenth is ",len(words))
+    return summary
+
+
+
+# def auto_summary(article_data):
+    # print("Open text file")
+    # with open('text.txt', 'r', encoding='gbk', errors='ignore') as f:
+    #     if f:
+    #         print("Open Success")
+    #     else:
+    #         print("Open Failed")
+    #     text = f.read()
+    #     f.close()
+    #     # print(text)
+
     # summary_2 = summarize(summary, ratio=0.6)
     # print(summary_2)
-    with open('summary.txt', 'w+', encoding='gbk', errors='ignore') as f:
-        f.write(summary)
-        f.close()
+#     with open('summary.txt', 'w+', encoding='gbk', errors='ignore') as f:
+#         f.write(summary)
+#         f.close()
 
 
 url_data(article_url)

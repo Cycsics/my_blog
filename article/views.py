@@ -21,10 +21,14 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 # 引入Q对象
 from django.db.models import Q
-# 引入textrank-master
-from 
-
-
+# 引入Json返回模块
+from django.http import JsonResponse
+# 引入上上级目录下的模块
+# 引入textrank
+from textrank.url_data import url_summary
+# from ..textrank.url_data import url_summary
+import requests
+import json
 
 def article_detail(request, id):
     article = ArticlePost.objects.get(id=id)
@@ -216,38 +220,28 @@ def article_list(request):
 
 
 
-# 更新文章
+# 文章摘要
 def article_summary(request):
     """
     提取文章摘要
     """
     # 判断用户是否为 POST 提交表单数据
+    # print(request.method)
     if request.method == "POST":
         # 获取返回的表单的Url
         url = request.POST['url']
-        # 判断提交的数据是否满足模型的要求
-        if request.is_ajax():
-            # 保存新写入的 title、body 数据并保存
-            url = request.POST['url']
-            
-            # 完成后返回到修改后的文章中。需传入文章的 id 值
-            return redirect("article:article_detail", id=id)
-        # 如果数据不合法，返回错误信息
-        else:
-            return HttpResponse("表单内容有误，请重新填写。")
+        words_limit = request.POST['words_limit']
+        # 获取textrank的返回值
+        summary, words = url_summary(url, int(words_limit))
+        # 构造返回前端的data
+        context = {
+            'summary': summary,
+            'words': words,
+        }
+        print(context)
+        return render(request, 'article/result.html', context)
+        # return JsonRes(context)
 
     # 如果用户 GET 请求获取数据
     else:
-        # 创建表单类实例
-        article_post_form = ArticlePostForm()
-        # 获取文章栏目
-        columns = ArticleColumn.objects.all()
-        # 赋值上下文，将 article 文章对象也传递进去，以便提取旧的内容
-        context = { 
-            'article': article, 
-            'article_post_form': article_post_form, 
-            'columns': columns,
-            'tags': ','.join([x for x in article.tags.names()]),
-        }
-        # 将响应返回到模板中
-        return render(request, 'article/update.html', context)
+        return render(request, 'article/summary.html')
